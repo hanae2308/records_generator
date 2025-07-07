@@ -5,19 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DNS Record Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4361ee;
             --primary-hover: #3a56d4;
+            --primary-light: #ebefff;
             --text: #2b2d42;
             --text-light: #6c757d;
+            --text-lighter: #adb5bd;
             --bg: #f8f9fa;
             --card-bg: #ffffff;
             --border: #e9ecef;
+            --border-light: #f1f3f5;
             --success: #4bb543;
             --error: #ff3333;
+            --warning: #ff9500;
+            --info: #17a2b8;
             --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius-sm: 4px;
+            --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             --transition: all 0.2s ease;
         }
         
@@ -31,12 +38,13 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             color: var(--text);
-            line-height: 1.6;
-            padding: 2rem 1rem;
+            line-height: 1.5;
+            padding: 1rem;
+            font-size: 14px;
         }
         
         .main-container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
         }
         
@@ -50,37 +58,40 @@
         header {
             background-color: var(--primary);
             color: white;
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: var(--border-radius) var(--border-radius) 0 0;
         }
         
         h1 {
-            font-size: 1.75rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
         
         .subtitle {
-            font-size: 1rem;
+            font-size: 0.875rem;
             opacity: 0.9;
         }
         
         .tabs {
             display: flex;
             border-bottom: 1px solid var(--border);
-            background-color: #f1f3f5;
+            background-color: var(--border-light);
         }
         
         .tab {
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1rem;
             cursor: pointer;
             font-weight: 500;
-            border-bottom: 3px solid transparent;
+            font-size: 0.875rem;
+            border-bottom: 2px solid transparent;
             transition: var(--transition);
+            color: var(--text-light);
         }
         
         .tab:hover {
             background-color: #e9ecef;
+            color: var(--text);
         }
         
         .tab.active {
@@ -91,7 +102,7 @@
         
         .tab-content {
             display: none;
-            padding: 1.5rem;
+            padding: 1rem;
         }
         
         .tab-content.active {
@@ -99,57 +110,74 @@
         }
         
         .input-section, .output-section {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
         
         label {
             display: block;
             font-weight: 500;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
             color: var(--text);
+            font-size: 0.875rem;
         }
         
         .input-hint {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: var(--text-light);
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
         
-        textarea {
+        textarea, input {
             width: 100%;
-            min-height: 120px;
-            padding: 1rem;
+            padding: 0.5rem 0.75rem;
             border: 1px solid var(--border);
-            border-radius: var(--border-radius);
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.9375rem;
+            border-radius: var(--border-radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8125rem;
             resize: vertical;
             transition: var(--transition);
         }
         
-        textarea:focus {
+        textarea {
+            min-height: 80px;
+        }
+        
+        textarea:focus, input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         .buttons {
             display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
         
         button {
-            padding: 0.75rem 1.25rem;
-            border-radius: var(--border-radius);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--border-radius-sm);
             font-weight: 500;
-            font-size: 0.9375rem;
+            font-size: 0.8125rem;
             cursor: pointer;
             transition: var(--transition);
             border: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.375rem;
         }
         
         .btn-primary {
@@ -172,98 +200,171 @@
         
         .output-container {
             position: relative;
-        }
-        
-        .copy-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            background-color: rgba(255, 255, 255, 0.9);
             border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 0.8125rem;
+            border-radius: var(--border-radius-sm);
+            background-color: #f8fafc;
         }
         
-        .copy-btn:hover {
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: var(--border-light);
+            border-bottom: 1px solid var(--border);
+            border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+        }
+        
+        .output-title {
+            font-weight: 500;
+            font-size: 0.8125rem;
+            color: var(--text-light);
+        }
+        
+        .output-actions {
+            display: flex;
+            gap: 0.375rem;
+        }
+        
+        .output-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
             background-color: white;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .output-btn i {
+            font-size: 0.65rem;
+        }
+        
+        .output-btn:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
         }
         
         .result {
-            margin-top: 20px;
-            padding: 1rem;
-            background-color: #f8fafc;
-            border-radius: var(--border-radius);
-            white-space: pre-wrap;
-            border: 1px solid var(--border);
-            min-height: 120px;
+            padding: 0.75rem;
             font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
-            font-size: 0.875rem;
-            line-height: 1.5;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            max-height: 300px;
+            overflow-y: auto;
         }
         
-        .examples {
-            background-color: #f8fafc;
-            border-radius: var(--border-radius);
-            padding: 1rem;
-            margin-top: 1.5rem;
-            border: 1px solid var(--border);
-        }
-        
-        .examples h3 {
-            font-size: 1rem;
-            margin-bottom: 0.75rem;
-            color: var(--text);
-        }
-        
-        .example-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .example {
-            font-size: 0.875rem;
+        .record-item {
+            padding: 0.5rem;
+            margin-bottom: 0.375rem;
             background-color: white;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            border-left: 3px solid var(--primary);
-        }
-        
-        .example-title {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-        
-        .example-code {
+            border-radius: var(--border-radius-sm);
+            border-left: 2px solid var(--primary);
             font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
-            color: var(--primary);
+            font-size: 0.75rem;
             word-break: break-all;
+        }
+        
+        .record-item.error {
+            border-left-color: var(--error);
+            background-color: rgba(255, 51, 51, 0.05);
+        }
+        
+        .record-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.125rem;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+        
+        .record-type {
+            font-weight: 500;
+            color: var(--primary);
+        }
+        
+        .record-type.error {
+            color: var(--error);
+        }
+        
+        .record-domain {
+            font-weight: 500;
+        }
+        
+        .record-content {
+            margin-top: 0.25rem;
         }
         
         .status {
             margin-top: 0.5rem;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             padding: 0.5rem;
-            border-radius: 6px;
-            display: none;
+            border-radius: var(--border-radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        
+        .status i {
+            font-size: 0.8rem;
         }
         
         .success {
             background-color: rgba(75, 181, 67, 0.1);
             color: var(--success);
-            display: block;
         }
         
         .error {
             background-color: rgba(255, 51, 51, 0.1);
             color: var(--error);
-            display: block;
+        }
+        
+        .warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning);
+        }
+        
+        .info {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+        
+        .stats {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--text-light);
+        }
+        
+        .stat-value {
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .stat-success {
+            color: var(--success);
+        }
+        
+        .stat-error {
+            color: var(--error);
+        }
+        
+        .stat-warning {
+            color: var(--warning);
         }
         
         @media (max-width: 768px) {
             body {
-                padding: 1rem 0.5rem;
+                padding: 0.75rem 0.5rem;
             }
             
             .container {
@@ -271,15 +372,15 @@
             }
             
             header {
-                padding: 1rem;
+                padding: 0.75rem;
             }
             
             h1 {
-                font-size: 1.5rem;
+                font-size: 1.1rem;
             }
             
             .tab-content {
-                padding: 1rem;
+                padding: 0.75rem;
             }
             
             .buttons {
@@ -303,97 +404,96 @@
             
             <!-- SPF Generator Tab -->
             <div id="spf-tab" class="tab-content active">
-               
-                
-                <div class="input-section">
-                    <label for="spf-domains">Domains</label>
-                    <p class="input-hint">Enter one domain per line</p>
-                    <textarea id="spf-domains" placeholder="example.com&#10;example.org&#10;example.net"></textarea>
-                </div>
-                
-                <div class="input-section">
-                    <label for="spf-ips">IP Addresses</label>
-                    <p class="input-hint">Enter IP addresses </p>
-                    <textarea id="spf-ips" placeholder="192.168.1.1 192.168.1.2 192.168.1.3"></textarea>
+                <div class="form-grid">
+                    <div class="input-section">
+                        <label for="spf-domains">Domains</label>
+                        <textarea id="spf-domains" placeholder="example.com&#10;example.org&#10;example.net"></textarea>
+                    </div>
+                    
+                    <div class="input-section">
+                        <label for="spf-ips">IP Addresses</label>
+                        <textarea id="spf-ips" placeholder="192.168.1.1 192.168.1.2 192.168.1.3"></textarea>
+                    </div>
                 </div>
                 
                 <div class="buttons">
                     <button class="btn-primary" onclick="generateSpfRecords()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        Generate SPF Records
+                        <i class="fas fa-magic"></i>
+                        Generate
                     </button>
                     <button class="btn-secondary" onclick="clearSpfInputs()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"></path>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                        Clear All
+                        <i class="fas fa-trash-alt"></i>
+                        Clear
                     </button>
                 </div>
                 
                 <div class="output-section">
-                    <label>Generated SPF Records</label>
                     <div class="output-container">
-                        <button class="copy-btn" onclick="copySpfToClipboard()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            Copy
-                        </button>
+                        <div class="output-header">
+                            <span class="output-title">Generated SPF Records</span>
+                            <div class="output-actions">
+                                <button class="output-btn" onclick="copySpfToClipboard()">
+                                    <i class="far fa-copy"></i>
+                                    Copy
+                                </button>
+                                <button class="output-btn" onclick="downloadSpfRecords()">
+                                    <i class="fas fa-download"></i>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
                         <div class="result" id="spf-result"></div>
                     </div>
-                    <div id="spf-statusMessage" class="status"></div>
+                    <div id="spf-stats" class="stats"></div>
+                    <div id="spf-statusMessage" class="status">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Ready to generate SPF records</span>
+                    </div>
                 </div>
-                
-               
             </div>
             
             <!-- TXT Generator Tab -->
             <div id="txt-tab" class="tab-content">
                 <div class="input-section">
                     <label for="txt-input">Input Domains</label>
-                    <textarea id="txt-input" placeholder="example.com google-site-verification=WwDCrnKEvovHoV_V00sL02Vc__5ktTCx9SByZ1ciT0g&"></textarea>
+                    <p class="input-hint">Domain followed by verification data (one per line)</p>
+                    <textarea id="txt-input" placeholder="example.com google-site-verification=WwDCrnKEvovHoV_V00sL02Vc__5ktTCx9SByZ1ciT0g"></textarea>
                 </div>
                 
                 <div class="buttons">
                     <button class="btn-primary" onclick="generateTxtRecords()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        Generate TXT Records
+                        <i class="fas fa-magic"></i>
+                        Generate
                     </button>
                     <button class="btn-secondary" onclick="clearTxtInputs()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"></path>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                        Clear All
+                        <i class="fas fa-trash-alt"></i>
+                        Clear
                     </button>
                 </div>
                 
                 <div class="output-section">
-                    <label>Generated TXT Records</label>
                     <div class="output-container">
-                        <button class="copy-btn" onclick="copyTxtToClipboard()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            Copy
-                        </button>
+                        <div class="output-header">
+                            <span class="output-title">Generated TXT Records</span>
+                            <div class="output-actions">
+                                <button class="output-btn" onclick="copyTxtToClipboard()">
+                                    <i class="far fa-copy"></i>
+                                    Copy
+                                </button>
+                                <button class="output-btn" onclick="downloadTxtRecords()">
+                                    <i class="fas fa-download"></i>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
                         <div class="result" id="txt-result"></div>
                     </div>
-                    <div id="txt-statusMessage" class="status"></div>
+                    <div id="txt-stats" class="stats"></div>
+                    <div id="txt-statusMessage" class="status">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Ready to generate TXT records</span>
+                    </div>
                 </div>
-                
-              
             </div>
         </div>
     </div>
@@ -421,81 +521,172 @@
             
             if (domains.length === 0) {
                 showSpfStatus('Please enter at least one domain', 'error');
+                updateSpfStats(0, 0);
                 return;
             }
             
-            // Get IPs and properly separate them with semicolons
+            // Get IPs and properly separate them
             let ipInput = document.getElementById('spf-ips').value;
             
-            // First, replace all commas with semicolons
-            ipInput = ipInput.replace(/,/g, ';');
+            // First, replace all commas with spaces
+            ipInput = ipInput.replace(/,/g, ' ');
             
-            // Then replace any sequence of whitespace (including newlines) with semicolons
-            ipInput = ipInput.replace(/\s+/g, ';');
+            // Then replace any sequence of whitespace (including newlines) with spaces
+            ipInput = ipInput.replace(/\s+/g, ' ');
             
-            // Remove any leading/trailing semicolons
-            ipInput = ipInput.replace(/^;+|;+$/g, '');
-            
-            // Remove any duplicate semicolons
-            ipInput = ipInput.replace(/;+/g, ';');
-            
-            // Split into individual IPs and filter out empty entries
-            const ipArray = ipInput.split(';').filter(ip => ip.trim() !== '');
+            // Trim and split into individual IPs
+            const ipArray = ipInput.trim().split(' ').filter(ip => ip.trim() !== '');
             
             if (ipArray.length === 0) {
                 showSpfStatus('Please enter at least one IP address', 'error');
+                updateSpfStats(0, 0);
                 return;
             }
             
-            // Join with semicolons to create the final IP string
-            const formattedIPs = ipArray.join(';');
+            // Validate IP addresses
+            const validIPs = [];
+            const invalidIPs = [];
             
-            const records = domains.map(domain => {
-                const dnsEntry = `dns.${domain}`;
-                return `${domain},${dnsEntry},TXT,Arecords:${formattedIPs}`;
+            ipArray.forEach(ip => {
+                if (isValidIP(ip)) {
+                    validIPs.push(ip);
+                } else {
+                    invalidIPs.push(ip);
+                }
             });
             
-            document.getElementById('spf-result').textContent = records.join('\n');
-            showSpfStatus(`Successfully generated ${domains.length} SPF records`, 'success');
+            if (validIPs.length === 0) {
+                showSpfStatus('No valid IP addresses found', 'error');
+                updateSpfStats(0, 0);
+                return;
+            }
+            
+            if (invalidIPs.length > 0) {
+                showSpfStatus(`Generated records with ${invalidIPs.length} invalid IP(s) ignored`, 'warning');
+            } else {
+                showSpfStatus(`Successfully generated ${domains.length} SPF records`, 'success');
+            }
+            
+            const formattedIPs = validIPs.join(';');
+            
+            let resultHTML = '';
+            domains.forEach(domain => {
+                const dnsEntry = `dns.${domain}`;
+                resultHTML += `
+                    <div class="record-item">
+                        <div class="record-content">${domain},${dnsEntry},TXT,Arecords:${formattedIPs}</div>
+                    </div>
+                `;
+            });
+            
+            if (invalidIPs.length > 0) {
+                resultHTML += `
+                    <div class="record-item error">
+                        <div class="record-content">Invalid IPs: ${invalidIPs.join(', ')}</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('spf-result').innerHTML = resultHTML;
+            updateSpfStats(domains.length, invalidIPs.length);
+        }
+        
+        function isValidIP(ip) {
+            // Simple IPv4 validation
+            const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            return ipv4Regex.test(ip);
+        }
+        
+        function updateSpfStats(successCount, errorCount) {
+            const statsElement = document.getElementById('spf-stats');
+            statsElement.innerHTML = `
+                <div class="stat-item">
+                    <i class="fas fa-check-circle stat-success"></i>
+                    <span>Valid: <span class="stat-value stat-success">${successCount}</span></span>
+                </div>
+                ${errorCount > 0 ? `
+                <div class="stat-item">
+                    <i class="fas fa-exclamation-circle stat-error"></i>
+                    <span>Invalid: <span class="stat-value stat-error">${errorCount}</span></span>
+                </div>
+                ` : ''}
+            `;
         }
         
         function clearSpfInputs() {
             document.getElementById('spf-domains').value = '';
             document.getElementById('spf-ips').value = '';
-            document.getElementById('spf-result').textContent = '';
-            document.getElementById('spf-statusMessage').textContent = '';
-            document.getElementById('spf-statusMessage').className = 'status';
+            document.getElementById('spf-result').innerHTML = '';
+            document.getElementById('spf-stats').innerHTML = '';
+            showSpfStatus('Ready to generate SPF records', 'info');
         }
         
         function copySpfToClipboard() {
-            const resultText = document.getElementById('spf-result').textContent;
-            if (!resultText) {
+            const resultElements = document.querySelectorAll('#spf-result .record-content');
+            if (resultElements.length === 0) {
                 showSpfStatus('Nothing to copy', 'error');
                 return;
             }
             
-            navigator.clipboard.writeText(resultText)
-                .then(() => showSpfStatus('Copied to clipboard!', 'success'))
+            let textToCopy = '';
+            resultElements.forEach(el => {
+                if (!el.closest('.error')) {
+                    textToCopy += el.textContent + '\n';
+                }
+            });
+            
+            navigator.clipboard.writeText(textToCopy.trim())
+                .then(() => showSpfStatus('Records copied!', 'success'))
                 .catch(err => showSpfStatus('Failed to copy: ' + err, 'error'));
+        }
+        
+        function downloadSpfRecords() {
+            const resultElements = document.querySelectorAll('#spf-result .record-content');
+            if (resultElements.length === 0) {
+                showSpfStatus('Nothing to save', 'error');
+                return;
+            }
+            
+            let textToDownload = '';
+            resultElements.forEach(el => {
+                if (!el.closest('.error')) {
+                    textToDownload += el.textContent + '\n';
+                }
+            });
+            
+            const blob = new Blob([textToDownload.trim()], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'spf-records.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showSpfStatus('Records saved!', 'success');
         }
         
         function showSpfStatus(message, type) {
             const statusElement = document.getElementById('spf-statusMessage');
-            statusElement.textContent = message;
             statusElement.className = `status ${type}`;
-            
-            setTimeout(() => {
-                statusElement.textContent = '';
-                statusElement.className = 'status';
-            }, 3000);
+            statusElement.innerHTML = `
+                <i class="fas ${
+                    type === 'success' ? 'fa-check-circle' : 
+                    type === 'error' ? 'fa-times-circle' : 
+                    type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'
+                }"></i>
+                <span>${message}</span>
+            `;
         }
         
         // TXT Generator Functions
         function generateTxtRecords() {
             const inputText = document.getElementById('txt-input').value;
             const lines = inputText.split('\n');
-            let output = '';
+            let successCount = 0;
             let errorCount = 0;
+            let resultHTML = '';
             
             for (const line of lines) {
                 if (line.trim() === '') continue;
@@ -505,7 +696,7 @@
                     const parts = normalized.split(/\s+/).filter(part => part !== '');
                     
                     if (parts.length < 2) {
-                        throw new Error('Invalid format');
+                        throw new Error('Invalid format - needs domain and verification data');
                     }
                     
                     const domain = parts[0];
@@ -527,57 +718,132 @@
                     }
                     
                     const txtRecord = `${domain},${domain},TXT,${verification}`;
-                    output += txtRecord + '\n';
+                    
+                    resultHTML += `
+                        <div class="record-item">
+                            <div class="record-content">${txtRecord}</div>
+                        </div>
+                    `;
+                    
+                    successCount++;
                 } catch (e) {
-                    output += `# Error processing: "${line}" - ${e.message}\n`;
+                    resultHTML += `
+                        <div class="record-item error">
+                            <div class="record-content">Error: ${line}</div>
+                        </div>
+                    `;
                     errorCount++;
                 }
             }
             
             const resultElement = document.getElementById('txt-result');
-            resultElement.textContent = output || 'No valid input found.';
-            
-            const statusElement = document.getElementById('txt-statusMessage');
-            if (errorCount > 0) {
-                statusElement.textContent = `Processed with ${errorCount} error(s). Please check the output.`;
-                statusElement.className = 'status error';
-            } else if (output) {
-                statusElement.textContent = 'Successfully processed all records!';
-                statusElement.className = 'status success';
+            if (successCount === 0 && errorCount > 0) {
+                resultElement.innerHTML = resultHTML;
+                showTxtStatus('No valid records generated', 'error');
+            } else if (errorCount > 0) {
+                resultElement.innerHTML = resultHTML;
+                showTxtStatus(`Generated ${successCount} records with ${errorCount} errors`, 'warning');
+            } else if (successCount > 0) {
+                resultElement.innerHTML = resultHTML;
+                showTxtStatus(`Successfully generated ${successCount} TXT records`, 'success');
             } else {
-                statusElement.textContent = '';
-                statusElement.className = 'status';
+                resultElement.innerHTML = '<div class="record-item">No valid input found</div>';
+                showTxtStatus('Ready to generate TXT records', 'info');
             }
+            
+            updateTxtStats(successCount, errorCount);
+        }
+        
+        function updateTxtStats(successCount, errorCount) {
+            const statsElement = document.getElementById('txt-stats');
+            statsElement.innerHTML = `
+                <div class="stat-item">
+                    <i class="fas fa-check-circle stat-success"></i>
+                    <span>Valid: <span class="stat-value stat-success">${successCount}</span></span>
+                </div>
+                ${errorCount > 0 ? `
+                <div class="stat-item">
+                    <i class="fas fa-exclamation-circle stat-error"></i>
+                    <span>Errors: <span class="stat-value stat-error">${errorCount}</span></span>
+                </div>
+                ` : ''}
+            `;
         }
         
         function clearTxtInputs() {
             document.getElementById('txt-input').value = '';
-            document.getElementById('txt-result').textContent = '';
-            document.getElementById('txt-statusMessage').textContent = '';
-            document.getElementById('txt-statusMessage').className = 'status';
+            document.getElementById('txt-result').innerHTML = '';
+            document.getElementById('txt-stats').innerHTML = '';
+            showTxtStatus('Ready to generate TXT records', 'info');
         }
         
         function copyTxtToClipboard() {
-            const resultText = document.getElementById('txt-result').textContent;
-            if (!resultText || resultText === 'No valid input found.') {
+            const resultElements = document.querySelectorAll('#txt-result .record-content');
+            if (resultElements.length === 0) {
                 showTxtStatus('Nothing to copy', 'error');
                 return;
             }
             
-            navigator.clipboard.writeText(resultText)
-                .then(() => showTxtStatus('Copied to clipboard!', 'success'))
+            let textToCopy = '';
+            resultElements.forEach(el => {
+                if (!el.closest('.error')) {
+                    textToCopy += el.textContent + '\n';
+                }
+            });
+            
+            if (textToCopy.trim() === '') {
+                showTxtStatus('No valid records to copy', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(textToCopy.trim())
+                .then(() => showTxtStatus('Records copied!', 'success'))
                 .catch(err => showTxtStatus('Failed to copy: ' + err, 'error'));
+        }
+        
+        function downloadTxtRecords() {
+            const resultElements = document.querySelectorAll('#txt-result .record-content');
+            if (resultElements.length === 0) {
+                showTxtStatus('Nothing to save', 'error');
+                return;
+            }
+            
+            let textToDownload = '';
+            resultElements.forEach(el => {
+                if (!el.closest('.error')) {
+                    textToDownload += el.textContent + '\n';
+                }
+            });
+            
+            if (textToDownload.trim() === '') {
+                showTxtStatus('No valid records to save', 'error');
+                return;
+            }
+            
+            const blob = new Blob([textToDownload.trim()], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'txt-records.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showTxtStatus('Records saved!', 'success');
         }
         
         function showTxtStatus(message, type) {
             const statusElement = document.getElementById('txt-statusMessage');
-            statusElement.textContent = message;
             statusElement.className = `status ${type}`;
-            
-            setTimeout(() => {
-                statusElement.textContent = '';
-                statusElement.className = 'status';
-            }, 3000);
+            statusElement.innerHTML = `
+                <i class="fas ${
+                    type === 'success' ? 'fa-check-circle' : 
+                    type === 'error' ? 'fa-times-circle' : 
+                    type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'
+                }"></i>
+                <span>${message}</span>
+            `;
         }
     </script>
 </body>
