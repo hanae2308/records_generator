@@ -399,6 +399,7 @@
             
             <div class="tabs">
                 <div class="tab active" data-tab="spf">SPF Generator</div>
+                <div class="tab" data-tab="spf-external">SPF External</div>
                 <div class="tab" data-tab="txt">TXT Generator</div>
             </div>
             
@@ -448,6 +449,56 @@
                     <div id="spf-statusMessage" class="status">
                         <i class="fas fa-info-circle"></i>
                         <span>Ready to generate SPF records</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SPF External Generator Tab -->
+            <div id="spf-external-tab" class="tab-content">
+                <div class="form-grid">
+                    <div class="input-section">
+                        <label for="spf-external-domains">Domains</label>
+                        <textarea id="spf-external-domains" placeholder="example.com&#10;example.org&#10;example.net"></textarea>
+                    </div>
+                    
+                    <div class="input-section">
+                        <label for="spf-external-ips">IP Addresses</label>
+                        <textarea id="spf-external-ips" placeholder="192.168.1.1 192.168.1.2 192.168.1.3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn-primary" onclick="generateSpfExternalRecords()">
+                        <i class="fas fa-magic"></i>
+                        Generate
+                    </button>
+                    <button class="btn-secondary" onclick="clearSpfExternalInputs()">
+                        <i class="fas fa-trash-alt"></i>
+                        Clear
+                    </button>
+                </div>
+                
+                <div class="output-section">
+                    <div class="output-container">
+                        <div class="output-header">
+                            <span class="output-title">Generated SPF Records (External Format)</span>
+                            <div class="output-actions">
+                                <button class="output-btn" onclick="copySpfExternalToClipboard()">
+                                    <i class="far fa-copy"></i>
+                                    Copy
+                                </button>
+                                <button class="output-btn" onclick="downloadSpfExternalRecords()">
+                                    <i class="fas fa-download"></i>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                        <div class="result" id="spf-external-result"></div>
+                    </div>
+                    <div id="spf-external-stats" class="stats"></div>
+                    <div id="spf-external-statusMessage" class="status">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Ready to generate SPF records in external format</span>
                     </div>
                 </div>
             </div>
@@ -589,6 +640,168 @@
             
             document.getElementById('spf-result').innerHTML = resultHTML;
             updateSpfStats(domains.length, invalidIPs.length);
+        }
+        
+        // SPF External Generator Functions
+        function generateSpfExternalRecords() {
+            const domains = document.getElementById('spf-external-domains').value.split('\n')
+                .map(domain => domain.trim())
+                .filter(domain => domain.length > 0);
+            
+            if (domains.length === 0) {
+                showSpfExternalStatus('Please enter at least one domain', 'error');
+                updateSpfExternalStats(0, 0);
+                return;
+            }
+            
+            // Get IPs and properly separate them
+            let ipInput = document.getElementById('spf-external-ips').value;
+            
+            // First, replace all commas with spaces
+            ipInput = ipInput.replace(/,/g, ' ');
+            
+            // Then replace any sequence of whitespace (including newlines) with spaces
+            ipInput = ipInput.replace(/\s+/g, ' ');
+            
+            // Trim and split into individual IPs
+            const ipArray = ipInput.trim().split(' ').filter(ip => ip.trim() !== '');
+            
+            if (ipArray.length === 0) {
+                showSpfExternalStatus('Please enter at least one IP address', 'error');
+                updateSpfExternalStats(0, 0);
+                return;
+            }
+            
+            // Validate IP addresses
+            const validIPs = [];
+            const invalidIPs = [];
+            
+            ipArray.forEach(ip => {
+                if (isValidIP(ip)) {
+                    validIPs.push(ip);
+                } else {
+                    invalidIPs.push(ip);
+                }
+            });
+            
+            if (validIPs.length === 0) {
+                showSpfExternalStatus('No valid IP addresses found', 'error');
+                updateSpfExternalStats(0, 0);
+                return;
+            }
+            
+            if (invalidIPs.length > 0) {
+                showSpfExternalStatus(`Generated records with ${invalidIPs.length} invalid IP(s) ignored`, 'warning');
+            } else {
+                showSpfExternalStatus(`Successfully generated ${domains.length} SPF records`, 'success');
+            }
+            
+            // Format IPs with "ip4:" prefix
+            const formattedIPs = validIPs.map(ip => `ip4:${ip}`).join(' ');
+            
+            let resultHTML = '';
+            domains.forEach(domain => {
+                const spfRecord = `v=spf1 ${formattedIPs} ~all`;
+                resultHTML += `
+                    <div class="record-item">
+                        <div class="record-content">${domain},${domain},TXT,${spfRecord}</div>
+                    </div>
+                `;
+            });
+            
+            if (invalidIPs.length > 0) {
+                resultHTML += `
+                    <div class="record-item error">
+                        <div class="record-content">Invalid IPs: ${invalidIPs.join(', ')}</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('spf-external-result').innerHTML = resultHTML;
+            updateSpfExternalStats(domains.length, invalidIPs.length);
+        }
+        
+        function clearSpfExternalInputs() {
+            document.getElementById('spf-external-domains').value = '';
+            document.getElementById('spf-external-ips').value = '';
+            document.getElementById('spf-external-result').innerHTML = '';
+            document.getElementById('spf-external-stats').innerHTML = '';
+            showSpfExternalStatus('Ready to generate SPF records in external format', 'info');
+        }
+        
+        function copySpfExternalToClipboard() {
+            const resultElements = document.querySelectorAll('#spf-external-result .record-content');
+            if (resultElements.length === 0) {
+                showSpfExternalStatus('Nothing to copy', 'error');
+                return;
+            }
+            
+            let textToCopy = '';
+            resultElements.forEach(el => {
+                if (!el.closest('.error')) {
+                    textToCopy += el.textContent + '\n';
+                }
+            });
+            
+            navigator.clipboard.writeText(textToCopy.trim())
+                .then(() => showSpfExternalStatus('Records copied!', 'success'))
+                .catch(err => showSpfExternalStatus('Failed to copy: ' + err, 'error'));
+        }
+        
+        function downloadSpfExternalRecords() {
+            const resultElements = document.querySelectorAll('#spf-external-result .record-content');
+            if (resultElements.length === 0) {
+                showSpfExternalStatus('Nothing to save', 'error');
+                return;
+            }
+            
+            let textToDownload = '';
+            resultElements.forEach(el => {
+                if (!el.closest('.error')) {
+                    textToDownload += el.textContent + '\n';
+                }
+            });
+            
+            const blob = new Blob([textToDownload.trim()], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'spf-external-records.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showSpfExternalStatus('Records saved!', 'success');
+        }
+        
+        function showSpfExternalStatus(message, type) {
+            const statusElement = document.getElementById('spf-external-statusMessage');
+            statusElement.className = `status ${type}`;
+            statusElement.innerHTML = `
+                <i class="fas ${
+                    type === 'success' ? 'fa-check-circle' : 
+                    type === 'error' ? 'fa-times-circle' : 
+                    type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'
+                }"></i>
+                <span>${message}</span>
+            `;
+        }
+        
+        function updateSpfExternalStats(successCount, errorCount) {
+            const statsElement = document.getElementById('spf-external-stats');
+            statsElement.innerHTML = `
+                <div class="stat-item">
+                    <i class="fas fa-check-circle stat-success"></i>
+                    <span>Valid: <span class="stat-value stat-success">${successCount}</span></span>
+                </div>
+                ${errorCount > 0 ? `
+                <div class="stat-item">
+                    <i class="fas fa-exclamation-circle stat-error"></i>
+                    <span>Invalid: <span class="stat-value stat-error">${errorCount}</span></span>
+                </div>
+                ` : ''}
+            `;
         }
         
         function isValidIP(ip) {
